@@ -4,11 +4,19 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://nvywmiyqclowqevznrwx.supabase.co'
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im52eXdtaXlxY2xvd3Fldnpucnd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk3NzE0OTAsImV4cCI6MjA3NTM0NzQ5MH0.W1Q7YF87tmSjcQOdZl8vDh4fvhVFodZUX8013rPFOho'
 
-// Debug: Solo en desarrollo
+// Debug: Solo en desarrollo  
 if (import.meta.env.DEV) {
   console.log('🔍 Supabase Config:')
   console.log('URL:', supabaseUrl)
   console.log('Key length:', supabaseAnonKey.length)
+} else {
+  // En producción, verificar configuración sin exponer datos sensibles
+  console.log('🌐 Production mode - Supabase client initialized')
+  console.log('Config check:', {
+    hasUrl: !!supabaseUrl,
+    hasKey: !!supabaseAnonKey,
+    urlValid: supabaseUrl.includes('supabase.co')
+  })
 }
 
 if (!supabaseUrl || !supabaseAnonKey) {
