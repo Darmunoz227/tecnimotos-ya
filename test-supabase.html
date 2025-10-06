@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Supabase</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Test de Conexión Supabase</h1>
+    <div id="result"></div>
+    
+    <script>
+        const supabaseUrl = 'https://nvywmiyqclowqevznrwx.supabase.co'
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im52eXdtaXlxY2xvd3Fldnpucnd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk3NzE0OTAsImV4cCI6MjA3NTM0NzQ5MH0.W1Q7YF87tmSjcQOdZl8vDh4fvhVFodZUX8013rPFOho'
+        
+        console.log('URL:', supabaseUrl)
+        console.log('Key length:', supabaseKey.length)
+        
+        const { createClient } = supabase
+        const client = createClient(supabaseUrl, supabaseKey)
+        
+        // Test básico
+        client.auth.getSession()
+            .then(({ data, error }) => {
+                const result = document.getElementById('result')
+                if (error) {
+                    console.error('Error:', error)
+                    result.innerHTML = `<p style="color: red;">❌ Error: ${error.message}</p>`
+                } else {
+                    console.log('Success:', data)
+                    result.innerHTML = `<p style="color: green;">✅ Conexión exitosa!</p>`
+                }
+            })
+            .catch(err => {
+                console.error('Catch error:', err)
+                document.getElementById('result').innerHTML = `<p style="color: red;">❌ Catch Error: ${err.message}</p>`
+            })
+    </script>
+</body>
+</html>
