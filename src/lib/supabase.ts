@@ -28,6 +28,14 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   }
 })
 
+// URL de redirect para confirmación de email
+export const getRedirectURL = () => {
+  if (typeof window !== 'undefined') {
+    return `${window.location.origin}/auth/callback`
+  }
+  return 'https://tecnimotos-ya.vercel.app/auth/callback'
+}
+
 // Función para verificar estado del email
 export const checkEmailDelivery = async () => {
   if (import.meta.env.DEV) {

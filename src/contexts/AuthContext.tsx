@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { User, Session } from '@supabase/supabase-js'
-import { supabase, checkEmailDelivery } from '@/lib/supabase'
+import { supabase, checkEmailDelivery, getRedirectURL } from '@/lib/supabase'
 
 interface AuthContextType {
   user: User | null
@@ -57,8 +57,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           data: {
             full_name: fullName,
           },
-          // Removemos emailRedirectTo para evitar problemas de confirmación
-          // emailRedirectTo: window.location.origin
+          // URL de confirmación para producción
+          emailRedirectTo: getRedirectURL()
         },
       })
 
