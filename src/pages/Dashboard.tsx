@@ -20,7 +20,8 @@ const Dashboard = () => {
     console.log('🔍 Dashboard Debug:');
     console.log('User:', user);
     console.log('Profile:', profile);
-  }, [user, profile]);
+    console.log('Loading:', loading);
+  }, [user, profile, loading]);
 
   useEffect(() => {
     if (!user) return;
@@ -122,7 +123,7 @@ const Dashboard = () => {
   }
 
   // Redirigir si no hay usuario autenticado
-  if (!user || !profile) {
+  if (!user) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
@@ -134,6 +135,12 @@ const Dashboard = () => {
               <p className="text-muted-foreground mb-4">
                 Necesitas iniciar sesión para ver tu dashboard
               </p>
+              <div className="space-y-2 text-sm text-muted-foreground mb-4">
+                <p>Estado de autenticación:</p>
+                <p>Usuario: {user ? 'Autenticado' : 'No autenticado'}</p>
+                <p>Profile: {profile ? 'Cargado' : 'No cargado'}</p>
+                <p>Loading: {loading ? 'Sí' : 'No'}</p>
+              </div>
               <Button asChild>
                 <Link to="/">Ir al inicio</Link>
               </Button>
