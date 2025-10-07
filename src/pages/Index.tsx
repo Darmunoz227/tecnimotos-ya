@@ -1,12 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowRight, CheckCircle, Wrench, ShoppingBag, Calendar, Star } from "lucide-react";
+import { ArrowRight, CheckCircle, Wrench, ShoppingBag, Calendar, Star, User } from "lucide-react";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SupabaseTest from "@/components/SupabaseTest";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Index = () => {
+  const { user } = useAuth();
   const services = [
     {
       icon: CheckCircle,
@@ -70,11 +72,20 @@ const Index = () => {
                     <ArrowRight className="h-5 w-5" />
                   </Link>
                 </Button>
-                <Button size="lg" variant="outline" asChild className="bg-white/10 border-white/30 hover:bg-white/20">
-                  <Link to="/servicios">
-                    Ver Servicios
-                  </Link>
-                </Button>
+                {user ? (
+                  <Button size="lg" variant="outline" asChild className="bg-white/10 border-white/30 hover:bg-white/20">
+                    <Link to="/dashboard" className="gap-2">
+                      <User className="h-5 w-5" />
+                      Mi Dashboard
+                    </Link>
+                  </Button>
+                ) : (
+                  <Button size="lg" variant="outline" asChild className="bg-white/10 border-white/30 hover:bg-white/20">
+                    <Link to="/servicios">
+                      Ver Servicios
+                    </Link>
+                  </Button>
+                )}
               </div>
             </div>
           </div>

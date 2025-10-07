@@ -25,6 +25,11 @@ const Header = () => {
     { path: "/citas", label: "Agendar Cita" },
   ];
 
+  // Add Dashboard to navigation when user is authenticated
+  const allNavItems = user 
+    ? [...navItems, { path: "/dashboard", label: "Mi Dashboard" }]
+    : navItems;
+
   const handleSignOut = async () => {
     await signOut();
   };
@@ -52,7 +57,7 @@ const Header = () => {
 
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center gap-6">
-              {navItems.map((item) => (
+              {allNavItems.map((item) => (
                 <Link
                   key={item.path}
                   to={item.path}
@@ -141,7 +146,7 @@ const Header = () => {
           {/* Mobile Menu */}
           {mobileMenuOpen && (
             <nav className="lg:hidden mt-4 pb-4 space-y-2 border-t pt-4">
-              {navItems.map((item) => (
+              {allNavItems.map((item) => (
                 <Link
                   key={item.path}
                   to={item.path}

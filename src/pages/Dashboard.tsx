@@ -14,6 +14,7 @@ const Dashboard = () => {
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
   useEffect(() => {
+    // Mostrar modal solo si no hay usuario después de cargar
     if (!loading && !user) {
       setAuthModalOpen(true);
     }
@@ -27,7 +28,7 @@ const Dashboard = () => {
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
-            <p className="mt-4 text-muted-foreground">Cargando...</p>
+            <p className="mt-4 text-muted-foreground">Cargando dashboard...</p>
           </div>
         </main>
         <Footer />
@@ -35,21 +36,38 @@ const Dashboard = () => {
     );
   }
 
-  // Show auth modal if not authenticated
+  // Show auth prompt if not authenticated
   if (!user) {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
-        <main className="flex-1 flex items-center justify-center">
+        <main className="flex-1 flex items-center justify-center bg-muted/30">
           <div className="text-center max-w-md mx-auto px-4">
-            <User className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-            <h2 className="text-2xl font-bold mb-2">Acceso Requerido</h2>
-            <p className="text-muted-foreground mb-6">
-              Necesitas iniciar sesión para acceder al dashboard.
-            </p>
-            <Button onClick={() => setAuthModalOpen(true)}>
-              Iniciar Sesión
-            </Button>
+            <div className="bg-card p-8 rounded-lg shadow-lg border">
+              <User className="h-16 w-16 mx-auto text-primary mb-4" />
+              <h2 className="text-2xl font-bold mb-2">Accede a tu Dashboard</h2>
+              <p className="text-muted-foreground mb-6">
+                Inicia sesión para ver tu historial de servicios, citas programadas y gestionar tu cuenta.
+              </p>
+              <div className="space-y-3">
+                <Button 
+                  onClick={() => setAuthModalOpen(true)} 
+                  className="w-full"
+                  size="lg"
+                >
+                  Iniciar Sesión
+                </Button>
+                <p className="text-sm text-muted-foreground">
+                  ¿No tienes cuenta?{" "}
+                  <button 
+                    onClick={() => setAuthModalOpen(true)}
+                    className="text-primary hover:underline font-medium"
+                  >
+                    Regístrate aquí
+                  </button>
+                </p>
+              </div>
+            </div>
           </div>
         </main>
         <Footer />
@@ -68,6 +86,7 @@ const Dashboard = () => {
     email: user.email || "",
     phone: user.user_metadata?.phone || "No especificado",
     address: "Calle 86 #15-30, Bogotá",
+    isDemo: user.email === 'demo@tecnimotos.com'
   };
 
   const appointments = [
@@ -160,6 +179,19 @@ const Dashboard = () => {
         {/* Dashboard Content */}
         <section className="py-12">
           <div className="container mx-auto px-4">
+            {/* Demo User Notice */}
+            {customer.isDemo && (
+              <div className="mb-8 p-4 bg-primary/10 border border-primary/20 rounded-lg">
+                <div className="flex items-center gap-2 text-primary">
+                  <User className="h-5 w-5" />
+                  <span className="font-semibold">Cuenta Demo Activa</span>
+                </div>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Estás usando una cuenta de demostración. Los datos mostrados son ejemplos para mostrar las funcionalidades del sistema.
+                </p>
+              </div>
+            )}
+            
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Main Content */}
               <div className="lg:col-span-2 space-y-8">

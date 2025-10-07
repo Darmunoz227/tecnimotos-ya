@@ -5,7 +5,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/hooks/use-toast'
-import { Loader2 } from 'lucide-react'
+import { Loader2, UserCheck, HelpCircle } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 interface AuthModalProps {
   isOpen: boolean
@@ -21,6 +22,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
   const [loading, setLoading] = useState(false)
   const { signIn, signUp } = useAuth()
   const { toast } = useToast()
+
+  // Función para cargar credenciales demo
+  const loadDemoCredentials = () => {
+    setEmail('demo@tecnimotos.com')
+    setPassword('demo123456')
+    if (mode === 'signup') {
+      setFullName('Usuario Demo')
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -44,28 +54,53 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
       }
 
       if (result.error) {
+        console.error('Error de autenticación:', result.error)
         toast({
-          title: 'Error',
+          title: 'Error de Autenticación',
           description: result.error.message || 'Ocurrió un error inesperado',
           variant: 'destructive',
         })
       } else {
         if (mode === 'signup') {
-          toast({
-            title: 'Registro exitoso',
-            description: 'Tu cuenta ha sido creada. Si no recibes el email de confirmación, intenta iniciar sesión directamente.',
-          })
+          // Verificar si el email fue confirmado automáticamente
+          if (result.emailConfirmed) {
+            toast({
+              title: '🎉 ¡Registro completado!',
+              description: 'Tu cuenta ha sido creada y confirmada. Iniciando sesión automáticamente...',
+            })
+            // Cerrar modal inmediatamente si está confirmado
+            setTimeout(() => {
+              onClose()
+              setEmail('')
+              setPassword('')
+              setFullName('')
+            }, 1500)
+          } else {
+            toast({
+              title: '📧 Registro exitoso',
+              description: 'Cuenta creada. NOTA: En desarrollo, puedes iniciar sesión inmediatamente sin confirmar email.',
+            })
+            // Cambiar automáticamente a modo login después del registro
+            setTimeout(() => {
+              setMode('signin')
+              setPassword('') // Limpiar contraseña por seguridad
+              toast({
+                title: '💡 Tip para desarrollo',
+                description: 'Puedes intentar iniciar sesión ahora, o usar las credenciales demo.',
+              })
+            }, 2000)
+          }
         } else {
           toast({
-            title: 'Inicio de sesión exitoso',
-            description: 'Bienvenido de nuevo',
+            title: '✅ Bienvenido',
+            description: 'Has iniciado sesión correctamente',
           })
+          onClose()
+          // Reset form
+          setEmail('')
+          setPassword('')
+          setFullName('')
         }
-        onClose()
-        // Reset form
-        setEmail('')
-        setPassword('')
-        setFullName('')
       }
     } catch (error) {
       toast({
@@ -139,6 +174,64 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
             {mode === 'signin' ? 'Iniciar Sesión' : 'Crear Cuenta'}
           </Button>
         </form>
+
+        {/* Botón de Usuario Demo */}
+        <div className="space-y-3">
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">
+                O prueba con
+              </span>
+            </div>
+          </div>
+          
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            onClick={loadDemoCredentials}
+            disabled={loading}
+          >
+            <UserCheck className="mr-2 h-4 w-4" />
+            Usar Credenciales Demo
+          </Button>
+          
+          {(email === 'demo@tecnimotos.com' || password === 'demo123456') && (
+            <div className="text-xs text-muted-foreground text-center space-y-1">
+              <p><strong>📧 Email:</strong> demo@tecnimotos.com</p>
+              <p><strong>🔑 Contraseña:</strong> demo123456</p>
+              <p className="text-primary">¡Credenciales cargadas! Haz clic en "{mode === 'signin' ? 'Iniciar Sesión' : 'Crear Cuenta'}"</p>
+            </div>
+          )}
+        </div>
+
+        {/* Información sobre email de confirmación */}
+        {mode === 'signup' && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+            <h4 className="text-sm font-semibold text-blue-800 mb-1">📧 Sobre la confirmación de email</h4>
+            <ul className="text-xs text-blue-700 space-y-1">
+              <li>• En desarrollo, puedes iniciar sesión inmediatamente después del registro</li>
+              <li>• Los emails pueden tardar en llegar o ir a spam</li>
+              <li>• Para pruebas rápidas, usa las credenciales demo</li>
+              <li>• En producción, la confirmación será obligatoria</li>
+            </ul>
+          </div>
+        )}
+
+        {mode === 'signin' && (
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+            <h4 className="text-sm font-semibold text-amber-800 mb-1">🔒 ¿Problemas para iniciar sesión?</h4>
+            <ul className="text-xs text-amber-700 space-y-1">
+              <li>• Si acabas de registrarte, intenta iniciar sesión inmediatamente</li>
+              <li>• Los emails de confirmación pueden tardar o ir a spam</li>
+              <li>• Usa las credenciales demo para acceso inmediato</li>
+              <li>• Verifica que email y contraseña sean correctos</li>
+            </ul>
+          </div>
+        )}
         
         <div className="text-center">
           <Button
@@ -151,6 +244,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
               : '¿Ya tienes cuenta? Inicia sesión'
             }
           </Button>
+          
+          <div className="mt-2">
+            <Button variant="link" size="sm" asChild className="text-xs text-muted-foreground">
+              <Link to="/email-help" className="gap-1">
+                <HelpCircle className="h-3 w-3" />
+                ¿Problemas con el email?
+              </Link>
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

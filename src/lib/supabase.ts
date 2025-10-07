@@ -21,8 +21,23 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     // Configuración para producción web
     flowType: 'pkce',
     storage: typeof window !== 'undefined' ? window.localStorage : undefined,
+    // En desarrollo, permitir inicio de sesión sin confirmación de email
+    ...(import.meta.env.DEV && {
+      debug: true,
+    })
   }
 })
+
+// Función para verificar estado del email
+export const checkEmailDelivery = async () => {
+  if (import.meta.env.DEV) {
+    console.log('📧 Estado del servicio de email en desarrollo:')
+    console.log('• Los emails pueden no enviarse en desarrollo local')
+    console.log('• Supabase puede permitir login sin confirmación en algunos casos')
+    console.log('• Para pruebas, usar credenciales demo: demo@tecnimotos.com / demo123456')
+    console.log('• En producción, el email de confirmación será obligatorio')
+  }
+}
 
 export type Database = {
   public: {
