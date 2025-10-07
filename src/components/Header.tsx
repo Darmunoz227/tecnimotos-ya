@@ -1,22 +1,22 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "./ui/button";
-import { Menu, Phone, ShoppingCart, User, LogOut } from "lucide-react";
+import { Menu, Phone, ShoppingCart, User, LogOut, LogIn } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { AuthModal } from "./AuthModal";
+import AuthModal from "./AuthModal";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 
 const Header = () => {
   const location = useLocation();
-  const { user, profile, signOut } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
+  const { user, signOut, loading } = useAuth();
 
   const navItems = [
     { path: "/", label: "Inicio" },
@@ -26,11 +26,12 @@ const Header = () => {
   ];
 
   const handleSignOut = async () => {
-    try {
-      await signOut();
-    } catch (error) {
-      console.error('Error signing out:', error);
-    }
+    await signOut();
+  };
+
+  const openAuthModal = (mode: 'signin' | 'signup') => {
+    setAuthMode(mode);
+    setAuthModalOpen(true);
   };
 
   return (
@@ -66,39 +67,66 @@ const Header = () => {
 
             {/* Actions */}
             <div className="flex items-center gap-2">
-              {/* Contact */}
+              <Button variant="ghost" size="icon" className="hidden md:flex">
+                <ShoppingCart className="h-5 w-5" />
+              </Button>
+              
+              {!loading && (
+                user ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <User className="h-5 w-5" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem asChild>
+                        <Link to="/dashboard" className="flex items-center gap-2">
+                          <User className="h-4 w-4" />
+                          Dashboard
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={handleSignOut} className="flex items-center gap-2">
+                        <LogOut className="h-4 w-4" />
+                        Cerrar Sesión
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => openAuthModal('signin')}
+                      className="hidden md:flex gap-2"
+                    >
+                      <LogIn className="h-4 w-4" />
+                      Iniciar Sesión
+                    </Button>
+                    <Button 
+                      variant="default" 
+                      size="sm" 
+                      onClick={() => openAuthModal('signup')}
+                      className="hidden md:flex"
+                    >
+                      Registrarse
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      onClick={() => openAuthModal('signin')}
+                      className="md:hidden"
+                    >
+                      <User className="h-5 w-5" />
+                    </Button>
+                  </div>
+                )
+              )}
+              
               <Button variant="default" size="sm" className="hidden md:flex gap-2">
                 <Phone className="h-4 w-4" />
                 <span>311 267 3255</span>
               </Button>
-
-              {/* Authentication */}
-              {user ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <User className="h-5 w-5" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem asChild>
-                      <Link to="/dashboard" className="cursor-pointer">
-                        Mi Dashboard
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
-                      <LogOut className="h-4 w-4 mr-2" />
-                      Cerrar Sesión
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              ) : (
-                <Button onClick={() => setAuthModalOpen(true)} variant="ghost" size="icon">
-                  <User className="h-5 w-5" />
-                </Button>
-              )}
-
               <Button
                 variant="ghost"
                 size="icon"
@@ -127,15 +155,68 @@ const Header = () => {
                   {item.label}
                 </Link>
               ))}
+              
+              {/* Mobile Auth Buttons */}
+              {!loading && !user && (
+                <div className="px-4 pt-2 space-y-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => {
+                      openAuthModal('signin');
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full"
+                  >
+                    Iniciar Sesión
+                  </Button>
+                  <Button 
+                    variant="default" 
+                    size="sm" 
+                    onClick={() => {
+                      openAuthModal('signup');
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full"
+                  >
+                    Registrarse
+                  </Button>
+                </div>
+              )}
+              
+              {!loading && user && (
+                <div className="px-4 pt-2 space-y-2">
+                  <Link
+                    to="/dashboard"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block px-4 py-2 rounded-md hover:bg-muted"
+                  >
+                    Dashboard
+                  </Link>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => {
+                      handleSignOut();
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full"
+                  >
+                    Cerrar Sesión
+                  </Button>
+                </div>
+              )}
             </nav>
           )}
         </div>
       </header>
 
       {/* Auth Modal */}
-      {authModalOpen && (
-        <AuthModal onClose={() => setAuthModalOpen(false)} />
-      )}
+      <AuthModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        initialMode={authMode}
+      />
     </>
   );
 };

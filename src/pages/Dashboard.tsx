@@ -1,66 +1,123 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, Wrench, FileText, User, Mail, Phone, MapPin, AlertCircle, Bike } from "lucide-react";
+import { Calendar, Clock, Wrench, FileText, User, Mail, Phone, MapPin } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import AuthModal from "@/components/AuthModal";
 
 const Dashboard = () => {
-  const { user, profile } = useAuth();
-  const [customer, setCustomer] = useState<any>(null);
-  const [userAppointments, setUserAppointments] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  // Debug - para ver qué datos tenemos
-  useEffect(() => {
-    console.log('🔍 Dashboard Debug:');
-    console.log('User:', user);
-    console.log('Profile:', profile);
-    console.log('Loading:', loading);
-  }, [user, profile, loading]);
+  const { user, loading } = useAuth();
+  const [authModalOpen, setAuthModalOpen] = useState(false);
 
   useEffect(() => {
-    if (!user) return;
+    if (!loading && !user) {
+      setAuthModalOpen(true);
+    }
+  }, [user, loading]);
 
-    const loadCustomerData = async () => {
-      try {
-        // Cargar datos del cliente
-        const { data: customerData } = await supabase
-          .from('customers')
-          .select('*')
-          .eq('user_id', user.id)
-          .single();
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+            <p className="mt-4 text-muted-foreground">Cargando...</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
-        setCustomer(customerData);
+  // Show auth modal if not authenticated
+  if (!user) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-center max-w-md mx-auto px-4">
+            <User className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+            <h2 className="text-2xl font-bold mb-2">Acceso Requerido</h2>
+            <p className="text-muted-foreground mb-6">
+              Necesitas iniciar sesión para acceder al dashboard.
+            </p>
+            <Button onClick={() => setAuthModalOpen(true)}>
+              Iniciar Sesión
+            </Button>
+          </div>
+        </main>
+        <Footer />
+        <AuthModal
+          isOpen={authModalOpen}
+          onClose={() => setAuthModalOpen(false)}
+          initialMode="signin"
+        />
+      </div>
+    );
+  }
 
-        // Cargar citas si existe el cliente
-        if (customerData) {
-          const { data: appointmentsData } = await supabase
-            .from('appointments')
-            .select(`
-              *,
-              services (name, description, base_price),
-              motorcycles (brand, model, plate)
-            `)
-            .eq('customer_id', customerData.id)
-            .order('scheduled_date', { ascending: false })
-            .limit(5);
+  // Mock data - would come from backend
+  const customer = {
+    name: user.user_metadata?.full_name || user.email?.split('@')[0] || "Usuario",
+    email: user.email || "",
+    phone: user.user_metadata?.phone || "No especificado",
+    address: "Calle 86 #15-30, Bogotá",
+  };
 
-          setUserAppointments(appointmentsData || []);
-        }
-      } catch (error) {
-        console.error('Error loading customer data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const appointments = [
+    {
+      id: 1,
+      date: "2025-10-15",
+      time: "10:00 AM",
+      service: "Revisión Técnico-Mecánica",
+      status: "confirmada",
+      motorcycle: "Bajaj Pulsar 180 - ABC123",
+    },
+    {
+      id: 2,
+      date: "2025-09-10",
+      time: "2:00 PM",
+      service: "Mantenimiento Preventivo",
+      status: "completada",
+      motorcycle: "Bajaj Pulsar 180 - ABC123",
+    },
+  ];
 
-    loadCustomerData();
-  }, [user]);
+  const serviceHistory = [
+    {
+      id: 1,
+      date: "2025-09-10",
+      service: "Mantenimiento Preventivo",
+      cost: 85000,
+      mechanic: "Miguel Carreño",
+      notes: "Cambio de aceite, filtros y sincronización. Todo en orden.",
+    },
+    {
+      id: 2,
+      date: "2025-06-20",
+      service: "Revisión Técnico-Mecánica",
+      cost: 45000,
+      mechanic: "Luis Martínez",
+      notes: "Certificado aprobado. Vence en 6 meses.",
+    },
+  ];
+
+  const motorcycles = [
+    {
+      id: 1,
+      brand: "Bajaj",
+      model: "Pulsar 180",
+      year: 2020,
+      plate: "ABC123",
+      lastService: "2025-09-10",
+    },
+  ];
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("es-CO", {
@@ -71,86 +128,17 @@ const Dashboard = () => {
   };
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
-      pending: "outline",
-      confirmed: "default",
-      in_progress: "secondary",
-      completed: "secondary",
-      cancelled: "destructive",
+    const variants: Record<string, "default" | "secondary" | "outline"> = {
+      confirmada: "default",
+      completada: "secondary",
+      cancelada: "outline",
     };
-    
-    const labels: Record<string, string> = {
-      pending: "Pendiente",
-      confirmed: "Confirmada",
-      in_progress: "En Progreso",
-      completed: "Completada",
-      cancelled: "Cancelada",
-    };
-
     return (
       <Badge variant={variants[status] || "outline"}>
-        {labels[status] || status}
+        {status.charAt(0).toUpperCase() + status.slice(1)}
       </Badge>
     );
   };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("es-CO", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
-  // Mostrar loading mientras carga
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex items-center justify-center h-64">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-              <p>Cargando tu dashboard...</p>
-            </div>
-          </div>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
-
-  // Redirigir si no hay usuario autenticado
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <div className="container mx-auto px-4 py-8">
-          <Card>
-            <CardContent className="p-8 text-center">
-              <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h2 className="text-xl font-semibold mb-2">Acceso Requerido</h2>
-              <p className="text-muted-foreground mb-4">
-                Necesitas iniciar sesión para ver tu dashboard
-              </p>
-              <div className="space-y-2 text-sm text-muted-foreground mb-4">
-                <p>Estado de autenticación:</p>
-                <p>Usuario: {user ? 'Autenticado' : 'No autenticado'}</p>
-                <p>Profile: {profile ? 'Cargado' : 'No cargado'}</p>
-                <p>Loading: {loading ? 'Sí' : 'No'}</p>
-              </div>
-              <Button asChild>
-                <Link to="/">Ir al inicio</Link>
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -164,7 +152,7 @@ const Dashboard = () => {
               Portal del Cliente
             </h1>
             <p className="text-lg opacity-95">
-              Bienvenido de nuevo, {profile?.full_name || user?.email || 'Usuario'}
+              Bienvenido de nuevo, {customer.name}
             </p>
           </div>
         </section>
@@ -178,92 +166,69 @@ const Dashboard = () => {
                 {/* Upcoming Appointments */}
                 <div>
                   <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-2xl font-heading font-bold">Mis Citas</h2>
+                    <h2 className="text-2xl font-heading font-bold">Próximas Citas</h2>
                     <Button asChild>
                       <Link to="/citas">Nueva Cita</Link>
                     </Button>
                   </div>
-                  
-                  {userAppointments.length > 0 ? (
-                    <div className="space-y-4">
-                      {userAppointments.map((appointment) => (
+                  <div className="space-y-4">
+                    {appointments
+                      .filter(apt => apt.status === "confirmada")
+                      .map((appointment) => (
                         <Card key={appointment.id} className="shadow-primary">
                           <CardContent className="pt-6">
                             <div className="flex flex-col md:flex-row justify-between gap-4">
                               <div className="space-y-2">
                                 <div className="flex items-center gap-2">
                                   <Calendar className="h-5 w-5 text-primary" />
-                                  <span className="font-semibold">
-                                    {formatDate(appointment.scheduled_date)}
-                                  </span>
+                                  <span className="font-semibold">{appointment.date}</span>
+                                  <Clock className="h-5 w-5 text-primary ml-2" />
+                                  <span className="font-semibold">{appointment.time}</span>
                                 </div>
-                                <p className="text-lg font-medium">
-                                  {appointment.services?.name || "Servicio"}
-                                </p>
-                                <div className="flex items-center gap-2">
-                                  <Bike className="h-4 w-4 text-muted-foreground" />
-                                  <span className="text-sm text-muted-foreground">
-                                    {appointment.motorcycles?.brand} {appointment.motorcycles?.model} - {appointment.motorcycles?.plate}
-                                  </span>
-                                </div>
+                                <p className="text-lg font-medium">{appointment.service}</p>
+                                <p className="text-sm text-muted-foreground">{appointment.motorcycle}</p>
                               </div>
                               <div className="flex flex-col justify-between items-start md:items-end">
                                 {getStatusBadge(appointment.status)}
-                                {appointment.total_cost && (
-                                  <p className="text-lg font-bold text-primary mt-2">
-                                    {formatPrice(appointment.total_cost)}
-                                  </p>
-                                )}
+                                <Button variant="outline" size="sm" className="mt-2">
+                                  Cancelar
+                                </Button>
                               </div>
                             </div>
-                            {appointment.notes && (
-                              <div className="mt-4 p-3 bg-muted/50 rounded-md">
-                                <p className="text-sm">{appointment.notes}</p>
-                              </div>
-                            )}
                           </CardContent>
                         </Card>
                       ))}
-                    </div>
-                  ) : (
-                    <Card>
-                      <CardContent className="p-8 text-center">
-                        <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                        <h3 className="text-lg font-semibold mb-2">No tienes citas programadas</h3>
-                        <p className="text-muted-foreground mb-4">
-                          ¡Agenda tu primera cita para el mantenimiento de tu motocicleta!
-                        </p>
-                        <Button asChild>
-                          <Link to="/citas">Agendar Cita</Link>
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  )}
+                  </div>
                 </div>
 
-                {/* Quick Actions */}
+                {/* Service History */}
                 <div>
-                  <h2 className="text-2xl font-heading font-bold mb-6">Acciones Rápidas</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-                      <CardContent className="p-6 text-center">
-                        <Calendar className="h-8 w-8 text-primary mx-auto mb-3" />
-                        <h3 className="font-semibold mb-2">Agendar Cita</h3>
-                        <p className="text-sm text-muted-foreground">
-                          Programa tu próximo servicio
-                        </p>
-                      </CardContent>
-                    </Card>
-                    
-                    <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-                      <CardContent className="p-6 text-center">
-                        <Wrench className="h-8 w-8 text-primary mx-auto mb-3" />
-                        <h3 className="font-semibold mb-2">Ver Servicios</h3>
-                        <p className="text-sm text-muted-foreground">
-                          Conoce nuestros servicios
-                        </p>
-                      </CardContent>
-                    </Card>
+                  <h2 className="text-2xl font-heading font-bold mb-6">Historial de Servicios</h2>
+                  <div className="space-y-4">
+                    {serviceHistory.map((service) => (
+                      <Card key={service.id} className="shadow-primary">
+                        <CardContent className="pt-6">
+                          <div className="flex justify-between items-start mb-4">
+                            <div>
+                              <p className="font-semibold text-lg">{service.service}</p>
+                              <p className="text-sm text-muted-foreground">
+                                {service.date} · Por {service.mechanic}
+                              </p>
+                            </div>
+                            <p className="text-xl font-bold text-primary">
+                              {formatPrice(service.cost)}
+                            </p>
+                          </div>
+                          <p className="text-sm bg-muted/50 p-3 rounded-md">
+                            {service.notes}
+                          </p>
+                          <Button variant="outline" size="sm" className="mt-4">
+                            <FileText className="h-4 w-4 mr-2" />
+                            Ver Factura
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -280,65 +245,75 @@ const Dashboard = () => {
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div className="flex items-start gap-2">
-                      <User className="h-4 w-4 text-muted-foreground mt-1" />
-                      <div>
-                        <p className="text-sm text-muted-foreground">Nombre</p>
-                        <p className="font-medium">{profile?.full_name || 'No disponible'}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-2">
                       <Mail className="h-4 w-4 text-muted-foreground mt-1" />
                       <div>
                         <p className="text-sm text-muted-foreground">Email</p>
-                        <p className="font-medium">{profile?.email || user?.email || 'No disponible'}</p>
+                        <p className="text-sm font-medium">{customer.email}</p>
                       </div>
                     </div>
-                    {profile.phone && (
-                      <div className="flex items-start gap-2">
-                        <Phone className="h-4 w-4 text-muted-foreground mt-1" />
-                        <div>
-                          <p className="text-sm text-muted-foreground">Teléfono</p>
-                          <p className="font-medium">{profile.phone}</p>
-                        </div>
+                    <div className="flex items-start gap-2">
+                      <Phone className="h-4 w-4 text-muted-foreground mt-1" />
+                      <div>
+                        <p className="text-sm text-muted-foreground">Teléfono</p>
+                        <p className="text-sm font-medium">{customer.phone}</p>
                       </div>
-                    )}
-                    {customer?.address && (
-                      <div className="flex items-start gap-2">
-                        <MapPin className="h-4 w-4 text-muted-foreground mt-1" />
-                        <div>
-                          <p className="text-sm text-muted-foreground">Dirección</p>
-                          <p className="font-medium">{customer.address}</p>
-                        </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <MapPin className="h-4 w-4 text-muted-foreground mt-1" />
+                      <div>
+                        <p className="text-sm text-muted-foreground">Dirección</p>
+                        <p className="text-sm font-medium">{customer.address}</p>
                       </div>
-                    )}
+                    </div>
                     <Button variant="outline" className="w-full mt-4">
                       Editar Perfil
                     </Button>
                   </CardContent>
                 </Card>
 
-                {/* Stats Card */}
-                <Card>
+                {/* Motorcycles */}
+                <Card className="gradient-card shadow-primary">
                   <CardHeader>
-                    <CardTitle>Estadísticas</CardTitle>
+                    <CardTitle className="flex items-center gap-2">
+                      <Wrench className="h-5 w-5 text-primary" />
+                      Mis Motos
+                    </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Total de Citas</span>
-                      <span className="font-semibold">{userAppointments.length}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Completadas</span>
-                      <span className="font-semibold">
-                        {userAppointments.filter(apt => apt.status === 'completed').length}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Pendientes</span>
-                      <span className="font-semibold">
-                        {userAppointments.filter(apt => apt.status === 'pending' || apt.status === 'confirmed').length}
-                      </span>
-                    </div>
+                    {motorcycles.map((moto) => (
+                      <div key={moto.id} className="p-4 bg-muted/50 rounded-lg">
+                        <p className="font-semibold">{moto.brand} {moto.model}</p>
+                        <p className="text-sm text-muted-foreground">Placa: {moto.plate}</p>
+                        <p className="text-sm text-muted-foreground">Año: {moto.year}</p>
+                        <p className="text-xs text-muted-foreground mt-2">
+                          Último servicio: {moto.lastService}
+                        </p>
+                      </div>
+                    ))}
+                    <Button variant="outline" className="w-full">
+                      Agregar Moto
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                {/* Quick Actions */}
+                <Card className="gradient-card shadow-primary">
+                  <CardHeader>
+                    <CardTitle>Acciones Rápidas</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    <Button asChild variant="outline" className="w-full justify-start">
+                      <Link to="/citas">
+                        <Calendar className="h-4 w-4 mr-2" />
+                        Agendar Cita
+                      </Link>
+                    </Button>
+                    <Button asChild variant="outline" className="w-full justify-start">
+                      <Link to="/productos">
+                        <Wrench className="h-4 w-4 mr-2" />
+                        Comprar Repuestos
+                      </Link>
+                    </Button>
                   </CardContent>
                 </Card>
               </div>
