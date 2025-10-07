@@ -15,6 +15,13 @@ const Dashboard = () => {
   const [userAppointments, setUserAppointments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Debug - para ver qué datos tenemos
+  useEffect(() => {
+    console.log('🔍 Dashboard Debug:');
+    console.log('User:', user);
+    console.log('Profile:', profile);
+  }, [user, profile]);
+
   useEffect(() => {
     if (!user) return;
 
@@ -150,7 +157,7 @@ const Dashboard = () => {
               Portal del Cliente
             </h1>
             <p className="text-lg opacity-95">
-              Bienvenido de nuevo, {profile.full_name}
+              Bienvenido de nuevo, {profile?.full_name || user?.email || 'Usuario'}
             </p>
           </div>
         </section>
@@ -269,14 +276,14 @@ const Dashboard = () => {
                       <User className="h-4 w-4 text-muted-foreground mt-1" />
                       <div>
                         <p className="text-sm text-muted-foreground">Nombre</p>
-                        <p className="font-medium">{profile.full_name}</p>
+                        <p className="font-medium">{profile?.full_name || 'No disponible'}</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-2">
                       <Mail className="h-4 w-4 text-muted-foreground mt-1" />
                       <div>
                         <p className="text-sm text-muted-foreground">Email</p>
-                        <p className="font-medium">{profile.email}</p>
+                        <p className="font-medium">{profile?.email || user?.email || 'No disponible'}</p>
                       </div>
                     </div>
                     {profile.phone && (
