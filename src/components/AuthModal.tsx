@@ -67,7 +67,7 @@ export const AuthModal = ({ onClose }: AuthModalProps) => {
     setLoading(true)
 
     try {
-      const { error } = await signUp(registerForm.email, registerForm.password, {
+      const { data, error } = await signUp(registerForm.email, registerForm.password, {
         full_name: registerForm.fullName,
         phone: registerForm.phone,
       })
@@ -75,11 +75,20 @@ export const AuthModal = ({ onClose }: AuthModalProps) => {
       if (error) {
         if (error.message.includes('already registered')) {
           toast.error('Este email ya está registrado. Intenta iniciar sesión.')
+        } else if (error.message.includes('Email rate limit exceeded')) {
+          toast.error('Demasiados intentos. Espera unos minutos e intenta de nuevo.')
         } else {
           toast.error(`Error al registrarse: ${error.message}`)
         }
       } else {
-        toast.success('¡Cuenta creada exitosamente! Revisa tu email para confirmar.')
+        if (data.user?.email_confirmed_at) {
+          toast.success('¡Cuenta creada e iniciada exitosamente!')
+        } else {
+          toast.success('¡Cuenta creada! Revisa tu email para confirmar tu cuenta.', {
+            duration: 8000,
+            description: 'Es posible que el email llegue a tu carpeta de spam.'
+          })
+        }
         onClose()
       }
     } catch (error) {
