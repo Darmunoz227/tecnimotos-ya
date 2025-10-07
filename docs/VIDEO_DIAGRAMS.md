@@ -18,7 +18,7 @@
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
-**Explicar en video:**
+
 - "Arquitectura de tres capas siguiendo principios SOA"
 - "Separación clara entre presentación, lógica y datos"
 - "Comunicación a través de APIs REST estandarizadas"
@@ -53,7 +53,7 @@
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
-**Explicar en video:**
+
 - "Cada servicio tiene responsabilidades específicas"
 - "Servicios independientes y reutilizables"
 - "Contratos bien definidos para cada servicio"
@@ -83,7 +83,7 @@ USER               FRONTEND           SUPABASE           DATABASE
  │◄────────────────────┤                  │                  │
 ```
 
-**Explicar en video:**
+
 - "Flujo stateless siguiendo principios REST"
 - "Tokens JWT para mantener sesiones sin estado"
 - "Separación clara entre autenticación y autorización"
@@ -122,7 +122,7 @@ USER               FRONTEND           SUPABASE           DATABASE
         └─────────────┘
 ```
 
-**Explicar en video:**
+
 - "Arquitectura de componentes modular"
 - "Reutilización y separación de responsabilidades"
 - "Cada componente tiene un propósito específico"
@@ -159,7 +159,7 @@ USER               FRONTEND           SUPABASE           DATABASE
                     └──────────────────────────┘
 ```
 
-**Explicar en video:**
+
 - "Esquema normalizado siguiendo mejores prácticas"
 - "Relaciones claras entre entidades"
 - "Políticas RLS para seguridad automática"
