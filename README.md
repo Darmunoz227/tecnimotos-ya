@@ -2,7 +2,7 @@
 
 ## 🚀 Project info
 
-**URL de Producción**: https://proyectoarquitecturatecnimotos-ya.vercel.app/
+**URL de Producción**: https://tecnimotos-ya.vercel.app/
 
 ## 🛠️ Tecnologias Usadas en este proyecto:
 

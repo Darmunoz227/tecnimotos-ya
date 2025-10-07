@@ -736,7 +736,7 @@ const handleSubmitCita = async (formData: CitaData) => {
 ### **Prueba de Funcionamiento:**
 
 El código mostrado está **actualmente desplegado** en:
-- **URL de Producción**: https://proyectoarquitecturatecnimotos-ya.vercel.app/
+- **URL de Producción**: https://tecnimotos-ya.vercel.app/
 - **Backend REST**: https://jlzfbxcpxqghyqxqrlyx.supabase.co
 - **Estado**: ✅ Funcional y accesible
 
