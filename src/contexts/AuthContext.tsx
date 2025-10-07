@@ -59,8 +59,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       })
       return { error }
     } catch (error) {
-      console.error('SignUp error:', error)
-      return { error: { message: 'Error de conexión. Verifica tu configuración de Supabase.' } }
+      return { error }
     }
   }
 
@@ -72,8 +71,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       })
       return { error }
     } catch (error) {
-      console.error('SignIn error:', error)
-      return { error: { message: 'Error de conexión. Verifica tu configuración de Supabase.' } }
+      return { error }
     }
   }
 
