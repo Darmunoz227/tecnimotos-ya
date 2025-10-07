@@ -4,6 +4,7 @@ import { ArrowRight, CheckCircle, Wrench, ShoppingBag, Calendar, Star } from "lu
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import SupabaseTest from "@/components/SupabaseTest";
 
 const Index = () => {
   const services = [
@@ -232,6 +233,15 @@ const Index = () => {
           </div>
         </section>
       </main>
+
+      {/* Test de Supabase - Solo en desarrollo */}
+      {import.meta.env.DEV && (
+        <section className="py-8 bg-muted/50">
+          <div className="container mx-auto px-4">
+            <SupabaseTest />
+          </div>
+        </section>
+      )}
 
       <Footer />
     </div>

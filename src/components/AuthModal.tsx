@@ -50,12 +50,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
           variant: 'destructive',
         })
       } else {
-        toast({
-          title: mode === 'signup' ? 'Registro exitoso' : 'Inicio de sesión exitoso',
-          description: mode === 'signup' 
-            ? 'Revisa tu email para confirmar tu cuenta' 
-            : 'Bienvenido de nuevo',
-        })
+        if (mode === 'signup') {
+          toast({
+            title: 'Registro exitoso',
+            description: 'Tu cuenta ha sido creada. Si no recibes el email de confirmación, intenta iniciar sesión directamente.',
+          })
+        } else {
+          toast({
+            title: 'Inicio de sesión exitoso',
+            description: 'Bienvenido de nuevo',
+          })
+        }
         onClose()
         // Reset form
         setEmail('')

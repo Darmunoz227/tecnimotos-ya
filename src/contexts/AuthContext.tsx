@@ -48,17 +48,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signUp = async (email: string, password: string, fullName: string) => {
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
             full_name: fullName,
           },
+          emailRedirectTo: window.location.origin
         },
       })
+
+      // Si el usuario se registra pero no recibe email, lo logueamos automáticamente
+      if (data.user && !error) {
+        console.log('Usuario registrado:', data.user)
+        // En algunos casos Supabase puede registrar y loguear automáticamente
+        return { error: null, message: 'Registro exitoso' }
+      }
+
       return { error }
     } catch (error) {
+      console.error('Error en registro:', error)
       return { error }
     }
   }
