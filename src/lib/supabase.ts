@@ -44,7 +44,24 @@ export const checkEmailDelivery = async () => {
     console.log('• Supabase puede permitir login sin confirmación en algunos casos')
     console.log('• Para pruebas, usar credenciales demo: demo@tecnimotos.com / demo123456')
     console.log('• En producción, el email de confirmación será obligatorio')
+  } else {
+    console.log('📧 Configuración de email en producción:')
+    console.log('• Si no recibes emails, revisa spam o contacta al administrador')
+    console.log('• Credenciales demo disponibles: demo@tecnimotos.com / demo123456')
   }
+}
+
+// Función para obtener información del usuario actual
+export const getCurrentUserInfo = async () => {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (user) {
+    console.log('👤 Usuario actual:', {
+      email: user.email,
+      confirmed: user.email_confirmed_at ? 'Sí' : 'No',
+      created: user.created_at
+    })
+  }
+  return user
 }
 
 export type Database = {

@@ -245,11 +245,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
             }
           </Button>
           
-          <div className="mt-2">
+          <div className="mt-2 space-y-1">
             <Button variant="link" size="sm" asChild className="text-xs text-muted-foreground">
               <Link to="/email-help" className="gap-1">
                 <HelpCircle className="h-3 w-3" />
                 ¿Problemas con el email?
+              </Link>
+            </Button>
+            <Button variant="link" size="sm" asChild className="text-xs text-muted-foreground">
+              <Link to="/email-trouble" className="gap-1">
+                <HelpCircle className="h-3 w-3" />
+                ¿No llega el email de confirmación?
               </Link>
             </Button>
           </div>

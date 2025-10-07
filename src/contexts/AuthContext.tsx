@@ -81,7 +81,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           console.log('📧 Email de confirmación enviado (puede tardar unos minutos)')
           return { 
             error: null, 
-            message: 'Registro exitoso - Revisa tu email para confirmar la cuenta', 
+            message: `✅ Registro exitoso! 
+
+📧 **Se ha enviado un email de confirmación a ${email}**
+
+⏱️ **Si no recibes el email en 5-10 minutos:**
+• Revisa tu bandeja de spam/correo no deseado
+• El servicio de email puede tener demoras
+• Contacta al administrador para confirmación manual
+
+🎭 **Mientras tanto, puedes usar las credenciales demo:**
+📧 Email: demo@tecnimotos.com
+🔑 Contraseña: demo123456`, 
             user: data.user,
             emailConfirmed: false
           }
