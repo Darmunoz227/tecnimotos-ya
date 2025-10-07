@@ -118,15 +118,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (error) {
         console.error('❌ Error en login:', error)
+        console.error('❌ Error code:', error.status)
+        console.error('❌ Error details:', error)
         
         // Mejorar mensajes de error
         let errorMessage = error.message
         if (error.message.includes('Invalid login credentials')) {
-          errorMessage = 'Email o contraseña incorrectos. Si acabas de registrarte y no has confirmado tu email, intenta usar las credenciales demo.'
+          errorMessage = `Email o contraseña incorrectos. 
+          
+🎭 **Credenciales Demo Disponibles:**
+📧 Email: demo@tecnimotos.com
+🔑 Contraseña: demo123456
+
+Si acabas de registrarte, confirma tu email primero.`
         } else if (error.message.includes('Email not confirmed')) {
           errorMessage = 'Debes confirmar tu email antes de iniciar sesión. Revisa tu bandeja de entrada y spam. Mientras tanto, puedes usar las credenciales demo.'
         } else if (error.message.includes('Too many requests')) {
           errorMessage = 'Demasiados intentos. Espera unos minutos e intenta nuevamente.'
+        } else if (error.status === 400) {
+          errorMessage = `Error de autenticación (${error.status}). Verifica las credenciales o usa las credenciales demo: demo@tecnimotos.com / demo123456`
         }
         
         return { error: { ...error, message: errorMessage } }
@@ -172,12 +182,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }
 
-  // Crear usuario demo al inicializar y verificar email
+  // Crear usuario demo al inicializar
   useEffect(() => {
-    if (import.meta.env.DEV) {
-      checkEmailDelivery()
-      createDemoUser()
-    }
+    // Crear usuario demo tanto en desarrollo como en producción
+    createDemoUser()
+    checkEmailDelivery()
   }, [])
 
   const value = {
