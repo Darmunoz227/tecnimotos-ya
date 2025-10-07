@@ -116,7 +116,7 @@ const EmailTrouble = () => {
               <Alert>
                 <CheckCircle className="h-4 w-4" />
                 <AlertDescription className="space-y-2">
-                  <p><strong>📧 Email:</strong> demo@tecnimotos.com</p>
+                  <p><strong>📧 Email:</strong> darmunoz@poligran.edu.co</p>
                   <p><strong>🔑 Contraseña:</strong> demo123456</p>
                   <p className="text-sm text-muted-foreground">
                     Estas credenciales funcionan inmediatamente sin necesidad de confirmación.

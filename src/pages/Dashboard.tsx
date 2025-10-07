@@ -86,7 +86,7 @@ const Dashboard = () => {
     email: user.email || "",
     phone: user.user_metadata?.phone || "No especificado",
     address: "Calle 86 #15-30, Bogotá",
-    isDemo: user.email === 'demo@tecnimotos.com'
+    isDemo: user.email === 'darmunoz@poligran.edu.co'
   };
 
   const appointments = [

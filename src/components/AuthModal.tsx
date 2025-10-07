@@ -25,7 +25,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
 
   // Función para cargar credenciales demo
   const loadDemoCredentials = () => {
-    setEmail('demo@tecnimotos.com')
+    setEmail('darmunoz@poligran.edu.co')
     setPassword('demo123456')
     if (mode === 'signup') {
       setFullName('Usuario Demo')
@@ -199,9 +199,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
             Usar Credenciales Demo
           </Button>
           
-          {(email === 'demo@tecnimotos.com' || password === 'demo123456') && (
+          {(email === 'darmunoz@poligran.edu.co' || password === 'demo123456') && (
             <div className="text-xs text-muted-foreground text-center space-y-1">
-              <p><strong>📧 Email:</strong> demo@tecnimotos.com</p>
+              <p><strong>📧 Email:</strong> darmunoz@poligran.edu.co</p>
               <p><strong>🔑 Contraseña:</strong> demo123456</p>
               <p className="text-primary">¡Credenciales cargadas! Haz clic en "{mode === 'signin' ? 'Iniciar Sesión' : 'Crear Cuenta'}"</p>
             </div>

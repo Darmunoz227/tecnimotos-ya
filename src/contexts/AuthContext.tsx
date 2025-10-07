@@ -91,7 +91,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 • Contacta al administrador para confirmación manual
 
 🎭 **Mientras tanto, puedes usar las credenciales demo:**
-📧 Email: demo@tecnimotos.com
+📧 Email: darmunoz@poligran.edu.co
 🔑 Contraseña: demo123456`, 
             user: data.user,
             emailConfirmed: false
@@ -138,7 +138,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           errorMessage = `Email o contraseña incorrectos. 
           
 🎭 **Credenciales Demo Disponibles:**
-📧 Email: demo@tecnimotos.com
+📧 Email: darmunoz@poligran.edu.co
 🔑 Contraseña: demo123456
 
 Si acabas de registrarte, confirma tu email primero.`
@@ -147,7 +147,7 @@ Si acabas de registrarte, confirma tu email primero.`
         } else if (error.message.includes('Too many requests')) {
           errorMessage = 'Demasiados intentos. Espera unos minutos e intenta nuevamente.'
         } else if (error.status === 400) {
-          errorMessage = `Error de autenticación (${error.status}). Verifica las credenciales o usa las credenciales demo: demo@tecnimotos.com / demo123456`
+          errorMessage = `Error de autenticación (${error.status}). Verifica las credenciales o usa las credenciales demo: darmunoz@poligran.edu.co / demo123456`
         }
         
         return { error: { ...error, message: errorMessage } }
@@ -172,9 +172,23 @@ Si acabas de registrarte, confirma tu email primero.`
   // Función para crear usuario demo automáticamente
   const createDemoUser = async () => {
     try {
-      console.log('🎭 Creando usuario demo...')
+      console.log('🎭 Verificando usuario demo...')
+      
+      // Primero intentar hacer login con el usuario demo existente
+      const loginResult = await supabase.auth.signInWithPassword({
+        email: 'darmunoz@poligran.edu.co',
+        password: 'demo123456'
+      })
+      
+      if (loginResult.data.user) {
+        console.log('✅ Usuario demo ya existe y funciona')
+        await supabase.auth.signOut() // Logout inmediato
+        return
+      }
+      
+      // Si no existe, crear el usuario demo
       const demoResult = await supabase.auth.signUp({
-        email: 'demo@tecnimotos.com',
+        email: 'darmunoz@poligran.edu.co',
         password: 'demo123456',
         options: {
           data: {
@@ -186,7 +200,8 @@ Si acabas de registrarte, confirma tu email primero.`
       if (demoResult.error && !demoResult.error.message.includes('already registered')) {
         console.error('Error creando usuario demo:', demoResult.error)
       } else {
-        console.log('✅ Usuario demo disponible')
+        console.log('✅ Usuario demo creado (necesita confirmación manual en Supabase)')
+        console.log('👉 Para confirmar: Dashboard Supabase → Authentication → Users → Confirmar darmunoz@poligran.edu.co')
       }
     } catch (error) {
       console.error('Error inesperado creando demo:', error)

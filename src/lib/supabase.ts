@@ -42,12 +42,12 @@ export const checkEmailDelivery = async () => {
     console.log('📧 Estado del servicio de email en desarrollo:')
     console.log('• Los emails pueden no enviarse en desarrollo local')
     console.log('• Supabase puede permitir login sin confirmación en algunos casos')
-    console.log('• Para pruebas, usar credenciales demo: demo@tecnimotos.com / demo123456')
+    console.log('• Para pruebas, usar credenciales demo: darmunoz@poligran.edu.co / demo123456')
     console.log('• En producción, el email de confirmación será obligatorio')
   } else {
     console.log('📧 Configuración de email en producción:')
     console.log('• Si no recibes emails, revisa spam o contacta al administrador')
-    console.log('• Credenciales demo disponibles: demo@tecnimotos.com / demo123456')
+    console.log('• Credenciales demo disponibles: darmunoz@poligran.edu.co / demo123456')
   }
 }
 
