@@ -1,4 +1,3 @@
-# 🎬 GUIÓN PARA DEMOSTRACIÓN DE CÓDIGO
 
 ## **ARCHIVO 1: Configuración de Supabase (src/lib/supabase.ts)**
 ```typescript
